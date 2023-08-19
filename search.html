@@ -1,0 +1,218 @@
+<!-- search.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- ... head metadata ... -->
+    <title>Search Results</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            margin-top: 0;
+            padding-top: 0;
+            font-family: Arial, sans-serif;
+            background-color: rgb(0, 0, 0);
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            height: 40px;
+            background-color: #131312;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-left: 10rem;
+
+        }
+
+        .search-box {
+            width: 700px;
+            height: 22px;
+            padding: 5px 10px;
+            /* to make space for the magnifying glass icon */
+            outline: none;
+            /* rounding the borders more */
+            border: 1px solid #000000;
+            background-color: #000000;
+            background-position: 7px center;
+            color: white;
+
+            /* position of the magnifying glass icon */
+            background-repeat: no-repeat;
+            background-size: 16px;
+            /* size of the magnifying glass icon */
+        }
+
+
+        .login-btn,
+        .playButton,
+        .searchButton,
+        .register-btn {
+            background-color: #20201f;
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+            /* Added a margin to separate the two buttons */
+        }
+
+        .login-btn:hover,
+        .register-btn:hover {
+            background-color: #0a0a0a;
+        }
+
+        .user-icon {
+            margin-right: 8px;
+        }
+
+
+
+
+
+        .mobile-menu-icon {
+            display: none;
+        }
+
+        @media only screen and (max-width: 768px) {
+
+            .search-box,
+            .login-btn {
+                display: none;
+            }
+
+            .mobile-menu-icon {
+                display: block;
+            }
+
+            .mobile-menu {
+                display: none;
+                position: absolute;
+                top: 60px;
+                right: 20px;
+                background-color: #131312;
+                border: 1px solid #aaa;
+                border-radius: 4px;
+            }
+
+            .banner {
+                width: 200px;
+            }
+
+            #trending-movie-banner::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 50%;
+                /* Determines how much of the bottom part you want to fade */
+                background: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+                pointer-events: none;
+                /* Ensures the gradient overlay doesn't interfere with any potential interactions with the banner */
+            }
+
+        }
+
+        footer {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 20px 0;
+            background-color: rgba(17, 15, 15, 0);
+            /* Optional: Light grey background for visibility */
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <img style="height: 54px; width: 100px;" src="images/movies.png">
+        </div>
+        <input type="text" id="search-input" style="color: white;" class="search-box" placeholder="Enter keywords...">
+        <button class="searchButton" onclick="searchMovies()">Search</button>
+        <button style="margin-left: 10rem;" class="register-btn">
+            <svg style="margin-right: 0.5rem;" class="plus-icon" xmlns="http://www.w3.org/2000/svg" width="16"
+                height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M8 1.5a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H1.5a.5.5 0 0 1 0-1H7V2a.5.5 0 0 1 .5-.5z" />
+            </svg>
+            Register
+        </button>
+
+        <div class="menu">
+            <button class="login-btn">
+                <svg class="user-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M8 8a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 8 8zm0 1a6.518 6.518 0 0 0-4.288 1.339 1 1 0 1 0 1.076 1.746A4.993 4.993 0 0 1 8 10c1.614 0 3.093.617 4.213 1.086a1 1 0 1 0 .982-1.789A6.518 6.518 0 0 0 8 9z" />
+                </svg>
+                Login
+            </button>
+
+        </div>
+        <div class="mobile-menu-icon">
+            <span>&#9776;</span>
+        </div>
+        <div class="mobile-menu">
+            <!-- Add mobile menu items here -->
+        </div>
+    </nav>
+    <div id="results"></div>
+
+    <script>
+        function searchMovies() {
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q'); // Assume 'q' is the parameter for the search query
+        const TMDB_API_KEY = 'c9cbc16ed2cc92ee656d643c52f8c6a1';
+
+        fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                const movies = data.results;
+                const resultsDiv = document.getElementById('results');
+
+                movies.forEach(movie => {
+                    const movieDiv = document.createElement('div');
+                    movieDiv.className = 'movie';  // Assigns the .movie class
+
+                    const posterImg = document.createElement('img');
+                    posterImg.src = `https://image.tmdb.org/t/p/w500/${movie.poster_path}`;
+                    posterImg.alt = movie.title;
+                    posterImg.addEventListener('click', () => {
+                        window.location.href = `/movie.html?id=${movie.id}`;
+                    });
+
+                    const titleDiv = document.createElement('div');
+                    titleDiv.className = 'movie-title';  // Assigns the .movie-title class
+                    titleDiv.innerText = movie.title;
+
+                    movieDiv.appendChild(posterImg);
+                    movieDiv.appendChild(titleDiv);
+
+                    resultsDiv.appendChild(movieDiv);
+                });
+            });
+
+    </script>
+</body>
+
+</html>
